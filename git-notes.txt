@@ -4,8 +4,7 @@ git remote add origin https://landenlabs@github.com/landenlabs/cs-redt.git
 
 git add .
 git commit -m "first commit"
-git push --set-upstream origin main
-
+git push --set-upstream origin master
 
 # git cleanup
 git fetch --prune
