@@ -236,9 +236,9 @@ namespace nsREDT
             this.nuMaxDepth.Value = (int)this.settings.Read("max_depth", Int32.Parse(nsREDT.Properties.Resources.max_depth));
             this.nuMaxFolder.Value = (int)this.settings.Read("max_folders", Int32.Parse(nsREDT.Properties.Resources.max_folders));
 
-            this.ignoreFilesTx.Text = this.settings.Read("ignore_files", FixText(nsREDT.Properties.Resources.ignore_files));
+            this.ignoreFilesTx.Text = FixText(this.settings.Read("ignore_files", nsREDT.Properties.Resources.ignore_files));
 
-            this.ignoreFoldersTx.Text = this.settings.Read("ignore_folders", FixText(nsREDT.Properties.Resources.ignore_folders));
+            this.ignoreFoldersTx.Text = FixText(this.settings.Read("ignore_folders", nsREDT.Properties.Resources.ignore_folders));
 
             this.logTb.Text = this.settings.Read("log_file", nsREDT.Properties.Resources.log_file);
 
@@ -392,10 +392,13 @@ namespace nsREDT
 
         public static string FixText(string _str) 
         {
-            return _str.Replace(@"\r", "").Replace(@"\n", "\n"); 
-        }
+			return _str.Replace(@"\r", "")
+				.Replace("\n", "\r\n")
+				.Replace(@"\n", "\r\n") // Environment.NewLine
+				.Replace("\r\r", "\r");
+		}
 
-        private void UpdateDeleteStats()
+		private void UpdateDeleteStats()
         {
             this.statusLbl.Text = String.Format(nsREDT.Properties.Resources.red_deleted, this.stats.deleteCnt); 
         }
@@ -506,7 +509,7 @@ namespace nsREDT
                 rootNode.ImageKey = "home";
                 rootNode.SelectedImageKey = "home";
                 this.tvFolders.Nodes.Add(rootNode);
-                dir2Tree.Add(dirInfo.FullName, rootNode);
+                dir2Tree.Add(dirInfo.FullName.TrimEnd('\\'), rootNode);
             }
 
             #endregion
@@ -687,6 +690,7 @@ namespace nsREDT
                 this.statusLbl.Text = nsREDT.Properties.Resources.process_cancelled;	
 			else
 			{
+				int cnt = dir2Tree.Count;
                 this.statusLbl.Text = String.Format(
                     nsREDT.Properties.Resources.found_x_empty_folders, 
                     FindWorker.EmptyFolderCount, 
@@ -1235,7 +1239,7 @@ namespace nsREDT
 
         private void DennisLang_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            Process.Start("http://home.comcast.net/~lang.dennis/index.html");
+            Process.Start("https://landenlabs.com/index.html");
         }
 
         #endregion

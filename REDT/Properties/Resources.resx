@@ -184,7 +184,7 @@
     <value>/*.tmp$/\r\ndesktop.ini\r\nThumbs.db</value>
   </data>
   <data name="ignore_folders" xml:space="preserve">
-    <value>System Volume Information\r\nRECYCLER\r\nPapierkorb\r\nRecycled\r\nNtUninstall\n$RECYCLE.BIN\nGAC_MSIL</value>
+    <value>System Volume Information\r\n$Recycle.Bin\r\n.git\r\n</value>
   </data>
   <data name="keep_system_folders" xml:space="preserve">
     <value>True</value>

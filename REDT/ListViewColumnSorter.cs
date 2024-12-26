@@ -19,7 +19,7 @@ namespace nsREDT
     ///     eTagDateTime - cast subitem's tag value to a DataTime object and compare.
     /// 
     /// Author: Dennis Lang - 2009
-    /// http://home.comcast.net/~lang.dennis/
+    /// https://landenlabs.com/
     /// </summary>
     public class ListViewColumnSorter : System.Collections.IComparer
     {

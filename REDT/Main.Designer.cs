@@ -1040,7 +1040,7 @@
             this.dlangLink.Size = new System.Drawing.Size(243, 13);
             this.dlangLink.TabIndex = 26;
             this.dlangLink.TabStop = true;
-            this.dlangLink.Text = "http://home.comcast.net/~lang.dennis/index.html";
+            this.dlangLink.Text = "https://landenlabs.com/index.html";
             this.dlangLink.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.DennisLang_LinkClicked);
             // 
             // dlangLb
@@ -1180,7 +1180,7 @@
             this.Name = "Main";
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Show;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "RED/t v3.0 - Remove Empty Directories with Trash";
+            this.Text = "RED/t v4.1 - Remove Empty Directories with Trash";
             this.Load += new System.EventHandler(this.Main_Load);
             this.ResizeEnd += new System.EventHandler(this.Main_ResziseEnd);
             this.DragDrop += new System.Windows.Forms.DragEventHandler(this.Main_DragDrop);
