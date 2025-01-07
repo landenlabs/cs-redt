@@ -5,6 +5,7 @@
 set prog=redt
 set bindir=d:\opt\bin
 set msbuild=F:\opt\VisualStudio\2022\Preview\MSBuild\Current\Bin\MSBuild.exe
+set reldeb=Debug
 
 cd %prog% 
  
@@ -15,19 +16,19 @@ rmdir /s bin  2> nul
 @rem %msbuild% %prog%.sln  -t:Clean
 
 @echo.
-@echo ---- Build Release %prog% 
-%msbuild% %prog%.sln -p:Configuration="Release";Platform=x64 -verbosity:minimal  -detailedSummary:True
+@echo ---- Build %reldeb% %prog% 
+%msbuild% %prog%.sln -p:Configuration="%reldeb%";Platform=x64 -verbosity:minimal  -detailedSummary:True
 
 @echo.
 @echo ---- Build done 
-if not exist "bin\x64\Release\%prog%.exe" (
-   echo Failed to build bin\x64\Release\%prog%.exe
+if not exist "bin\x64\%reldeb%\%prog%.exe" (
+   echo Failed to build bin\x64\%reldeb%\%prog%.exe
    goto _end
 )
  
 @echo ---- Copy Release to c:\opt\bin2
-copy  bin\x64\Release\%prog%.exe %bindir%\%prog%.exe
-dir   bin\x64\Release\%prog%.exe %bindir%\%prog%.exe
+copy  bin\x64\%reldeb%\%prog%.exe %bindir%\%prog%.exe
+dir   bin\x64\%reldeb%\%prog%.exe %bindir%\%prog%.exe
 
 @rem play happy tone
 rundll32.exe cmdext.dll,MessageBeepStub
