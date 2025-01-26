@@ -86,7 +86,7 @@ namespace nsREDT
                 {
                     if (argIdx != 0)
                         paths += ";";
-                    paths += cmdLineArgs[argIdx];
+                    paths += Path.GetFullPath(cmdLineArgs[argIdx]);
                 }
                 this.folderTx.Text = paths;
             }
@@ -221,7 +221,8 @@ namespace nsREDT
             settings = new cSettings(configPath);
 
             // Read folder from the config file
-            this.folderTx.Text = this.settings.Read("folder", nsREDT.Properties.Resources.start_folder);
+			if (this.folderTx.Text == "C:\\")
+                this.folderTx.Text = this.settings.Read("folder", nsREDT.Properties.Resources.start_folder);
 
             bool KeepSystemFolders = this.settings.Read("keep_system_folders", Boolean.Parse(nsREDT.Properties.Resources.keep_system_folders));
 
@@ -244,6 +245,10 @@ namespace nsREDT
 
             if (string.IsNullOrEmpty(this.logTb.Text))
                 this.logTb.Text = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "redt.log");
+			if (!File.Exists(logTb.Text))
+				this.logTb.ForeColor = Color.Red;
+			else
+				this.logTb.ForeColor = Color.Black;
             #endregion
         }
 
@@ -356,7 +361,7 @@ namespace nsREDT
                 return;
 
             if (listView.Groups.Count != 0)
-                MessageBox.Show("Sorting does not work when in 'Group' mode");
+                showMsg("Sorting does not work when in 'Group' mode");
 
             // Determine if clicked column is already the column that is being sorted.
             if (e.Column == sorter.SortColumn1)
@@ -450,7 +455,7 @@ namespace nsREDT
 
                 if (!folderInfo.Exists)
                 {
-                    MessageBox.Show(nsREDT.Properties.Resources.error_dir_does_not_exist);
+                    showMsg(nsREDT.Properties.Resources.error_dir_does_not_exist);
                     LogMessage("Invalid " + folderPath);
                     continue;
                 }
@@ -522,10 +527,10 @@ namespace nsREDT
 
             // set options:
             if (!findFldWorker.SetIgnoreFiles(this.ignoreFilesTx.Text))
-                MessageBox.Show(nsREDT.Properties.Resources.error_ignore_settings);
+                showMsg(nsREDT.Properties.Resources.error_ignore_settings);
 
             if (!findFldWorker.SetIgnoreFolders(this.ignoreFoldersTx.Text))
-                MessageBox.Show(nsREDT.Properties.Resources.error_ignore_settings);
+                showMsg(nsREDT.Properties.Resources.error_ignore_settings);
 
             findFldWorker.Ignore0kbFiles = this.cbIgnore0kbFiles.Checked;
             findFldWorker.IgnoreHiddenFolders = this.cbIgnoreHiddenFolders.Checked;
@@ -685,7 +690,7 @@ namespace nsREDT
 
 			// First, handle the case where an exception was thrown.
 			if (e.Error != null)
-                MessageBox.Show(nsREDT.Properties.Resources.error + "\n\n" + e.Error.Message);
+                showMsg(nsREDT.Properties.Resources.error + "\n\n" + e.Error.Message);
 			else if (e.Cancelled)
                 this.statusLbl.Text = nsREDT.Properties.Resources.process_cancelled;	
 			else
@@ -851,7 +856,7 @@ namespace nsREDT
 				}
 				catch (Exception ex)
 				{
-					MessageBox.Show(this, ex.ToString());
+					showMsg( ex.ToString());
 				}
 				finally
 				{
@@ -880,7 +885,7 @@ namespace nsREDT
 				}
 				catch (Exception ex)
 				{
-					MessageBox.Show(nsREDT.Properties.Resources.error + "\n\n" + this, ex.ToString());
+					showMsg(nsREDT.Properties.Resources.error + "\n\n" + this, ex.ToString());
 				}
 			}
         }
@@ -1148,7 +1153,7 @@ namespace nsREDT
 			if (s.Length == 1)
 				this.folderTx.Text = s[0];
 			else
-                MessageBox.Show(nsREDT.Properties.Resources.error_only_one_folder);
+                showMsg(nsREDT.Properties.Resources.error_only_one_folder);
 		}
 
         /// <summary>
@@ -1563,14 +1568,20 @@ namespace nsREDT
                 {
                     Process.Start(logTb.Text);
                 }
-                catch { }
+                catch {
+					showMsg("Empty log file or invalid log file path, see settings");
+				}
             }
         }
 
         private void LogTb_TextChanged(object sender, EventArgs e)
         {
             this.showLogBtn.Enabled = logTb.Text.Length != 0;
-        }
+			if (!File.Exists(logTb.Text))
+				this.logTb.ForeColor = Color.Red;
+			else
+				this.logTb.ForeColor = Color.Black;
+		}
 
         TextWriter logWriter = null;
         string lastMsg = string.Empty;
@@ -1591,7 +1602,7 @@ namespace nsREDT
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex + " " + logTb.Text);
+                showMsg(ex + " " + logTb.Text);
             }
         }
 
@@ -1636,6 +1647,16 @@ namespace nsREDT
         {
             ShowLogBtn_Click(sender, e);
         }
-       
+
+		HashSet<string> shownMsgs = new HashSet<string>();
+		private void showMsg(string msg) {
+			showMsg(msg, "");
+		}
+		private void showMsg(string msg, string arg) {
+			if (!shownMsgs.Contains(msg) && shownMsgs.Count < 20) {
+				shownMsgs.Add(msg);
+				MessageBox.Show(msg, arg);
+			}
+		}
     }
 }
