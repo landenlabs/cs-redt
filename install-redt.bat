@@ -1,17 +1,8 @@
 @echo off
 
-@rem TODO - use drive env in script below
- 
 set prog=redt
 
-set dstdir=%bindir%
-if not exist "%dstdir%" (
- if exist c:\opt\bin  set dstdir=c:\opt\bin
- if exist d:\opt\bin  set dstdir=d:\opt\bin
-)
-
-set bindir=%dstdir%
-set msbuild=G:\opt\VisualStudio\18\Community\MSBuild\Current\Bin\MSBuild.exe
+call dev-setup.bat
 set reldeb=Debug
 
 cd %prog% 

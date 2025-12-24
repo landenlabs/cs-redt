@@ -1,10 +1,8 @@
 @echo off
 
-@rem TODO - use drive env in script below
- 
 set prog=redt
 
-set msbuild=G:\opt\VisualStudio\18\Community\MSBuild\Current\Bin\MSBuild.exe
+call dev-setup.bat
 
 cd %prog% 
  
