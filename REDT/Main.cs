@@ -12,6 +12,7 @@ using Microsoft.Win32;
 using System.Text.RegularExpressions;
 using System.Reflection;
 using System.Security.AccessControl;
+using System.Security.Principal;
 
 namespace nsREDT
 {
@@ -74,6 +75,15 @@ namespace nsREDT
 		/// </summary>
         public Main(string[] cmdLineArgs)
 		{
+			if (!IsRunningAsAdmin()) {
+				if (RestartAsAdmin())
+					return; // exit current non-admin instance
+			}
+
+			// Your privileged code here
+			Console.WriteLine("Running with admin rights!");
+
+
 			InitializeComponent();
 
             dirView.ListViewItemSorter = new ListViewColumnSorter(ListViewColumnSorter.SortDataType.eAlpha);
@@ -92,7 +102,31 @@ namespace nsREDT
             }
 		}
 
-        protected override void OnClosing(CancelEventArgs e)
+
+		bool IsRunningAsAdmin() {
+			var identity = WindowsIdentity.GetCurrent();
+			var principal = new WindowsPrincipal(identity);
+			return principal.IsInRole(WindowsBuiltInRole.Administrator);
+		}
+
+		bool RestartAsAdmin() {
+			var exeName = Assembly.GetExecutingAssembly().Location;
+			var startInfo = new ProcessStartInfo(exeName) {
+				UseShellExecute = true,
+				Verb = "runas" // triggers UAC prompt
+			};
+
+			try {
+				Process.Start(startInfo);
+				return true;
+			} catch {
+				Console.WriteLine("User declined elevation.");
+				return false;
+			}
+		}
+
+
+		protected override void OnClosing(CancelEventArgs e)
         {
             CloseLogFile();
             base.OnClosing(e);
@@ -262,7 +296,11 @@ namespace nsREDT
                 this.stats.ignoredFolderCnt = 
                 this.stats.totalFound = 0;
 
-            List<string> keyList = new List<string>(this.stats.counts.Keys);
+			this.stats.counts["deleted"] = 0; ;
+			this.stats.counts["protected"] = 0;   
+			this.stats.counts["folder_warning"] = 0;  
+
+			List<string> keyList = new List<string>(this.stats.counts.Keys);
             foreach (string key in keyList)
                 this.stats.counts[key] = 0;
         }
@@ -405,7 +443,11 @@ namespace nsREDT
 
 		private void UpdateDeleteStats()
         {
-            this.statusLbl.Text = String.Format(nsREDT.Properties.Resources.red_deleted, this.stats.deleteCnt); 
+			this.stats.counts["deleted"] = this.stats.deleteCnt;
+			this.stats.counts["protected"] = this.stats.failedCnt;  // or "folder_warning"
+
+			this.statusLbl.Text = String.Format(nsREDT.Properties.Resources.red_deleted, this.stats.deleteCnt);
+			DisplayStats();
         }
 
 		/// <summary>
@@ -846,13 +888,17 @@ namespace nsREDT
 			{
 				try
 				{
-					regmenu = Registry.ClassesRoot.CreateSubKey(menuName);
-					if (regmenu != null)
-						regmenu.SetValue("", nsREDT.Properties.Resources.registry_name);
+					if (IsRunningAsAdmin()) {
+						regmenu = Registry.ClassesRoot.CreateSubKey(menuName);
+						if (regmenu != null)
+							regmenu.SetValue("", nsREDT.Properties.Resources.registry_name);
 
-					regcmd = Registry.ClassesRoot.CreateSubKey(command);
-					if (regcmd != null)
-						regcmd.SetValue("", Application.ExecutablePath + " \"%1\"");
+						regcmd = Registry.ClassesRoot.CreateSubKey(command);
+						if (regcmd != null)
+							regcmd.SetValue("", Application.ExecutablePath + " \"%1\"");
+					} else {
+						showMsg("Warning\nNormal permission does not allow registering REDT into windows explorer menu");
+					}
 				}
 				catch (Exception ex)
 				{
@@ -993,7 +1039,8 @@ namespace nsREDT
             #region Update delete stats
             this.stats.deleteCnt += deletedFolderCount;
             this.stats.failedCnt += failedFolderCount;
-            UpdateDeleteStats();
+
+			UpdateDeleteStats();
             LogMessage(string.Format("Deleted {0}, Failed to delete {1}", 
                     deletedFolderCount, failedFolderCount));
 

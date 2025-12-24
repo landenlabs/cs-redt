@@ -3,8 +3,15 @@
 @rem TODO - use drive env in script below
  
 set prog=redt
-set bindir=d:\opt\bin
-set msbuild=F:\opt\VisualStudio\2022\Preview\MSBuild\Current\Bin\MSBuild.exe
+
+set dstdir=%bindir%
+if not exist "%dstdir%" (
+ if exist c:\opt\bin  set dstdir=c:\opt\bin
+ if exist d:\opt\bin  set dstdir=d:\opt\bin
+)
+
+set bindir=%dstdir%
+set msbuild=G:\opt\VisualStudio\18\Community\MSBuild\Current\Bin\MSBuild.exe
 set reldeb=Debug
 
 cd %prog% 
@@ -26,7 +33,7 @@ if not exist "bin\x64\%reldeb%\%prog%.exe" (
    goto _end
 )
  
-@echo ---- Copy Release to c:\opt\bin2
+@echo ---- Copy Release to %bindir%
 copy  bin\x64\%reldeb%\%prog%.exe %bindir%\%prog%.exe
 dir   bin\x64\%reldeb%\%prog%.exe %bindir%\%prog%.exe
 
