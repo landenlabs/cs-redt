@@ -1,7 +1,7 @@
 @echo off
 
 @rem Optional define bindir and msbuild if not current set correctly. 
-call dev-setup.bat
+call ..\dev-setup.bat
 
 set prog=redt
 set reldeb=Debug
@@ -12,11 +12,11 @@ cd %prog%
 lldu -sum obj bin 
 rmdir /s obj  2> nul
 rmdir /s bin  2> nul
-@rem %msbuild% %prog%.sln  -t:Clean
+@rem "%msbuild%" "%prog%.sln"  -t:Clean
 
 @echo.
 @echo ---- Build %reldeb% %prog% 
-%msbuild% %prog%.sln -m -p:Configuration="%reldeb%";Platform="Any CPU" -verbosity:minimal  -detailedSummary:True
+"%msbuild%" "%prog%.sln" -m -p:Configuration="%reldeb%";Platform="Any CPU" -verbosity:minimal  -detailedSummary:True
 
 @echo.
 @echo ---- Build done 
@@ -25,7 +25,7 @@ if not exist "bin\%reldeb%\%prog%.exe" (
    goto _end
 )
  
-@echo ---- Copy Release to %bindir%
+@echo ---- Copy %reldeb% to %bindir%
 copy  bin\%reldeb%\%prog%.exe %bindir%\%prog%.exe
 ld -hp   bin\%reldeb%\%prog%.exe %bindir%\%prog%.exe
 
